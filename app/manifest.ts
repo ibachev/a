@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Next.js PWA",
-    short_name: "NextPWA",
+    name: "Cooking MK",
+    short_name: "CookngMK",
     description: "A Progressive Web App built with Next.js",
     start_url: "/",
     display: "standalone",
@@ -11,9 +11,14 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: "#000000",
     icons: [
       {
-        src: "/next.svg", // SVG version
-        sizes: "any", // for SVG you can put 'any'
-        type: "image/svg+xml",
+        src: "/image.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        src: "/image.png",
+        sizes: "512x512",
+        type: "image/png",
       },
     ],
   };
