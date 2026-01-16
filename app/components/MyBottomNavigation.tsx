@@ -1,7 +1,6 @@
 "use client"; // if using Next.js 13+ app directory
 
 import { useState } from "react";
-import Link from "next/link";
 import Paper from "@mui/material/Paper";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
