@@ -186,7 +186,7 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
           <TextField
             variant="outlined"
             size="small"
-            placeholder="Пребарај рецепти"
+            placeholder="Пребарај"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             InputProps={{

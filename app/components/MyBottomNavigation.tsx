@@ -1,33 +1,35 @@
-"use client"; // if using Next.js 13+ app directory
+"use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Paper from "@mui/material/Paper";
 import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import HomeFilled from "@mui/icons-material/Home";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { useRouter } from "next/navigation"; // for client-side navigation
+
+import { useRouter, usePathname } from "next/navigation";
+
+const routes = ["/home", "/favorites", "/nearby"];
 
 export default function MyBottomNav() {
-  const [value, setValue] = useState(0);
   const router = useRouter();
+  const pathname = usePathname();
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+  const [value, setValue] = useState(0);
 
-    // Navigate based on selected tab
-    switch (newValue) {
-      case 0:
-        router.push("/home");
-        break;
-      case 1:
-        router.push("/favorites");
-        break;
-      case 2:
-        router.push("/nearby");
-        break;
+  // 🔁 FOLLOW route changes
+  useEffect(() => {
+    const index = routes.findIndex((route) => pathname.startsWith(route));
+
+    if (index !== -1 && index !== value) {
+      setValue(index);
     }
+  }, [pathname, value]);
+
+  const handleChange = (_: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+    router.push(routes[newValue]);
   };
 
   return (
