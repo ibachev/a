@@ -6,11 +6,10 @@ import BottomNavigation from "@mui/material/BottomNavigation";
 import BottomNavigationAction from "@mui/material/BottomNavigationAction";
 import HomeFilled from "@mui/icons-material/Home";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import LocationOnIcon from "@mui/icons-material/LocationOn";
-
+import Face2Icon from "@mui/icons-material/Face2";
 import { useRouter, usePathname } from "next/navigation";
 
-const routes = ["/home", "/favorites", "/nearby"];
+const routes = ["/home", "/favorites", "/aboutme"];
 
 export default function MyBottomNav() {
   const router = useRouter();
@@ -40,7 +39,7 @@ export default function MyBottomNav() {
       <BottomNavigation showLabels value={value} onChange={handleChange}>
         <BottomNavigationAction label="Почетна" icon={<HomeFilled />} />
         <BottomNavigationAction label="Рецепти" icon={<FavoriteIcon />} />
-        <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
+        <BottomNavigationAction label="За мене" icon={<Face2Icon />} />
       </BottomNavigation>
     </Paper>
   );
