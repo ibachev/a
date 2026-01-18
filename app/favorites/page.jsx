@@ -31,13 +31,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import DownloadIcon from "@mui/icons-material/Download";
 
-// Mobile-friendly recipe manager for Next.js + MUI (Macedonian)
-// - Client component (uses localStorage)
-// - Add / Edit / Delete recipes
-// - Search/filter
-// - Export / Import JSON
-// - Small responsive layout and FAB for mobile
-
 const STORAGE_KEY = "recipes-mk-v1";
 
 function uid() {
@@ -49,8 +42,8 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
   const [openEditor, setOpenEditor] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState(null);
   const [query, setQuery] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
-  // load recipes from localStorage
   useEffect(() => {
     try {
       const raw = localStorage.getItem(storageKey);
@@ -63,7 +56,6 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
     }
   }, [storageKey]);
 
-  // save recipes to localStorage when changed
   useEffect(() => {
     try {
       localStorage.setItem(storageKey, JSON.stringify(recipes));
@@ -121,8 +113,13 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
     handleCloseEditor();
   }
 
-  function handleDelete(id) {
-    setRecipes((s) => s.filter((r) => r.id !== id));
+  function handleDeleteRequest(id) {
+    setConfirmDeleteId(id);
+  }
+
+  function handleConfirmDelete() {
+    setRecipes((s) => s.filter((r) => r.id !== confirmDeleteId));
+    setConfirmDeleteId(null);
   }
 
   function handleExport() {
@@ -144,7 +141,6 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
       try {
         const parsed = JSON.parse(ev.target.result);
         if (Array.isArray(parsed)) {
-          // merge by id, prefer imported recipe updatedAt
           setRecipes((existing) => {
             const map = new Map(existing.map((r) => [r.id, r]));
             for (const p of parsed) {
@@ -164,14 +160,14 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
           alert("Увезениот фајл не изгледа како листа со рецепти.");
         }
       } catch (err) {
-        console.error(err);
         alert("Неуспешен увоз: " + err.message);
       }
     };
     reader.readAsText(file);
-    // reset input so same file can be picked again later
     e.target.value = "";
   }
+
+  const recipeToDelete = recipes.find((r) => r.id === confirmDeleteId);
 
   return (
     <Box
@@ -212,9 +208,7 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
       <Box sx={{ p: 2, overflow: "auto", flex: 1 }}>
         {filtered.length === 0 ? (
           <Paper sx={{ p: 3, textAlign: "center" }} elevation={1}>
-            <Typography variant="body1">
-              Нема рецепти. Притиснете + за да додадете.
-            </Typography>
+            <Typography>Нема рецепти. Притиснете + за да додадете.</Typography>
           </Paper>
         ) : (
           <List>
@@ -224,27 +218,17 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
                   <ListItem button onClick={() => handleOpenEdit(recipe)}>
                     <ListItemText
                       primary={recipe.title || "Без наслов"}
-                      secondary={
-                        recipe.body
-                          ? recipe.body.length > 100
-                            ? recipe.body.slice(0, 100) + "…"
-                            : recipe.body
-                          : ""
-                      }
+                      secondary={recipe.body?.slice(0, 100)}
                     />
                     <ListItemSecondaryAction>
                       <Tooltip title="Уреди">
-                        <IconButton
-                          edge="end"
-                          onClick={() => handleOpenEdit(recipe)}
-                        >
+                        <IconButton onClick={() => handleOpenEdit(recipe)}>
                           <EditIcon />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Избриши">
                         <IconButton
-                          edge="end"
-                          onClick={() => handleDelete(recipe.id)}
+                          onClick={() => handleDeleteRequest(recipe.id)}
                         >
                           <DeleteIcon />
                         </IconButton>
@@ -261,7 +245,7 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
       <Divider />
 
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        <Stack direction="row" spacing={1} alignItems="center">
+        <Stack direction="row" spacing={1}>
           <Button
             startIcon={<DownloadIcon />}
             onClick={handleExport}
@@ -270,7 +254,6 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
           >
             Извези
           </Button>
-
           <label>
             <input
               accept="application/json"
@@ -288,7 +271,6 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
             </Button>
           </label>
         </Stack>
-
         <Typography variant="caption">
           Локално · {recipes.length} рецепти
         </Typography>
@@ -307,7 +289,7 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
         <DialogTitle>
           {editingRecipe?.id ? "Уреди рецепт" : "Нов рецепт"}
         </DialogTitle>
-        <DialogContent sx={{ height: "100%" }}>
+        <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
               label="Име на рецепт"
@@ -316,7 +298,6 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
                 setEditingRecipe((s) => ({ ...s, title: e.target.value }))
               }
               fullWidth
-              inputProps={{ maxLength: 120 }}
             />
             <TextField
               label="Состојки и упатства"
@@ -327,20 +308,36 @@ export default function RecipesComponent({ storageKey = STORAGE_KEY }) {
               fullWidth
               multiline
               minRows={8}
-              maxRows={40}
             />
-            <Box sx={{ mt: 1 }}>
-              <Typography variant="caption" color="text.secondary">
-                Совет: Рецептите се складираат локално во вашиот прелистувач.
-                Користете Извези за да зачувате копија.
-              </Typography>
-            </Box>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEditor}>Откажи</Button>
           <Button onClick={handleSave} variant="contained">
             Зачувај
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(confirmDeleteId)}
+        onClose={() => setConfirmDeleteId(null)}
+      >
+        <DialogTitle>Потврда за бришење</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Дали сте сигурни дека сакате да го избришете рецептот
+            {recipeToDelete?.title ? ` \"${recipeToDelete.title}\"` : ""}?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteId(null)}>Откажи</Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleConfirmDelete}
+          >
+            Избриши
           </Button>
         </DialogActions>
       </Dialog>

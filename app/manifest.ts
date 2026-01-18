@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Cooking MK",
-    short_name: "CookngMK",
+    short_name: "CookingMK",
     description: "A Progressive Web App built with Next.js",
     start_url: "/",
     display: "standalone",
