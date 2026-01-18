@@ -36,8 +36,8 @@ export default function MyBottomNav() {
       elevation={3}
     >
       <BottomNavigation showLabels value={value} onChange={handleChange}>
-        <BottomNavigationAction label="Home" icon={<HomeFilled />} />
-        <BottomNavigationAction label="Favorites" icon={<FavoriteIcon />} />
+        <BottomNavigationAction label="Почетна" icon={<HomeFilled />} />
+        <BottomNavigationAction label="Рецепти" icon={<FavoriteIcon />} />
         <BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />
       </BottomNavigation>
     </Paper>
